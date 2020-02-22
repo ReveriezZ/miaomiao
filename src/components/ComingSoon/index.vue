@@ -1,33 +1,97 @@
 <template>
-    <div class="movie_body">
-        <li v-for="item in comingList" :key="item.id">
-            <div class="pic_show"><img :src="item.img|setWH('128.180')"></div>
-            <div class="info_list">
-                <h2>{{item.nm}}</h2>
-                <p><span class="person">{{item.wish}}</span>人想看</p>
-                <p>主演：{{item.star}}</p>
-                <p>{{item.rt}}上映</p>
-            </div>
-            <div class="btn_pre">预售</div>
-        </li>
+    <div class="movie_body" ref="movie_body">
+        <Loading v-if="isLoading"></Loading>
+        <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
+            <ul>
+                <li class="pullDown">{{pullDownMsg}}</li>
+                <li v-for="item in comingList" :key="item.id">
+                    <div class="pic_show"><img :src="item.images.small"></div>
+                    <div class="info_list">
+                        <h2>{{item.title}}</h2>
+                        <p><span class="person">类型：<span v-for="(genre, index) in item.genres" :key="index">{{genre}} </span></span></p>
+                        <p>主演：<span v-for="cast in item.casts" :key="cast.id">{{cast.name}} </span></p>
+                        <p v-if="item.mainland_pubdate">{{item.mainland_pubdate}}上映</p>
+                        <p v-else>上映日期待定</p>
+                    </div>
+                    <div class="btn_pre">预售</div>
+                </li>
+            </ul>
+        </Scroller>
+
     </div>
 </template>
 
 <script>
+    //import Bscroll from 'better-scroll';
     export default {
         name:'ComingSoon',
         data(){
             return{
-                comingList:[]
+                comingList:[],
+                pullDownMsg:'',
+                isLoading:true,
+                prevCity:'',
             };
         },
-        mounted(){
-            this.axios.get('/api/movieComingList?cityId=10').then((res)=>{
-                var msg = res.data.msg;
-                if(msg === 'ok'){
-                    this.comingList = res.data.data.comingList;
-                }
+        activated(){
+            var cityNm = this.$store.state.city.nm;
+            if(this.prevCity === cityNm){
+                return
+            }
+            this.isLoading = true;
+            this.axios.get('/doubanapi/coming_soon?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+cityNm).then((res)=>{
+                this.comingList = res.data.subjects;
+                this.isLoading = false;
+                this.prevCity = cityNm;
+                // this.$nextTick(()=>{
+                //     var scroll = new Bscroll(this.$refs.movie_body,{
+                //         tap:true,//允许tap触发
+                //         probeType:1,
+                //     });
+                //     scroll.on('scroll',(pos)=>{
+                //         // console.log('scroll');
+                //         if(pos.y>30){
+                //             this.pullDownMsg = '正在更新中';
+                //         }
+                //     });
+                //     scroll.on('touchEnd',(pos)=>{
+                //         // console.log('touchend')
+                //         if(pos.y>30){
+                //             this.axios.get('/doubanapi/coming_soon?apikey=0b2bdeda43b5688921839c8ecb20399b').then((res)=>{
+                //                 this.pullDownMsg='更新成功';
+                //                 setTimeout(()=>{
+                //                     this.comingList = res.data.subjects;
+                //                     this.pullDownMsg=''
+                //                 },1000);
+                //             });
+                //         }
+                //     })
+                // });
+
             })
+        },
+        methods:{
+            handleToDetail(){
+
+            },
+            handleToScroll(pos){
+                if(pos.y>30){
+                    this.pullDownMsg = '正在更新中';
+                }
+            },
+            handleToTouchEnd(pos){
+                if(pos.y>30){
+                    this.axios.get('/doubanapi/coming_soon?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+this.prevCity).then((res)=>{
+                        this.pullDownMsg='更新成功';
+                        this.isLoading=true;
+                        setTimeout(()=>{
+                            this.comingList = res.data.subjects;
+                            this.pullDownMsg='';
+                            this.isLoading=false;
+                        },2000);
+                    });
+                }
+            }
         }
     }
 </script>
@@ -45,4 +109,6 @@
     .movie_body .info_list img{ width:50px; position: absolute; right:10px; top: 5px;}
     .movie_body .btn_mall , .movie_body .btn_pre{ width:47px; height:27px; line-height: 28px; text-align: center; background-color: #f03d37; color: #fff; border-radius: 4px; font-size: 12px; cursor: pointer;}
     .movie_body .btn_pre{ background-color: #3c9fe6;}
+    .movie_body .pullDown{marigin:0;padding:0;border:none;text-align: center;}
+
 </style>
