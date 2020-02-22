@@ -9,13 +9,13 @@
         <div class="search_result">
             <h3>电影/电视剧/综艺</h3>
             <ul>
-                <li v-for="item in moviesList" :key="item.id">
-                    <div class="img"><img :src="item.img|setWH('128.180')"></div>
+                <li>
+                    <div class="img"><img :src="movie.cover"></div>
                     <div class="info">
-                        <p><span>{{item.nm}}</span><span>{{item.sc}}</span></p>
-                        <p>{{item.enm}}</p>
-                        <p>{{item.cat}}</p>
-                        <p>{{item.rt}}</p>
+                        <p><span>{{movie.title}}</span><span>{{movie.year}}</span></p>
+                        <p>{{movie.dir}}</p>
+                        <p>{{movie.tag}}</p>
+                        <p>{{movie.rating}}</p>
                     </div>
                 </li>
             </ul>
@@ -29,17 +29,16 @@
         data(){
             return{
                 message:'',
-                moviesList:[],
+                movie:{},
             }
         },
 
         watch:{
             message(newVal){
-                this.axios.get('/api/searchList?cityId=10&kw='+newVal).then((res)=>{
-                    var msg = res.data.msg;
-                    var movies = res.data.data.movies;
-                    if(msg&&movies){
-                        this.moviesList = res.data.data.movies.list;
+                this.axios.get('/searchapi&key=V+DGrYduTNn+jJmM+oM7Qm/DMwTgsJeZ/px07w&q='+newVal).then((res)=>{
+                    var msg = res.data.reason;
+                    if(msg === '查询成功'){
+                        this.movie = res.data.result;
                     }
                 })
             }
@@ -56,7 +55,7 @@
     .search_body .search_result{}
     .search_body .search_result h3{ font-size: 15px; color: #999; padding: 9px 15px; border-bottom: 1px solid #e6e6e6;}
     .search_body .search_result ul{}
-    .search_body .search_result li{ border-bottom:1px #c9c9c9 dashed; padding: 10px 15px; box-sizing:border-box; display: flex;}
+    .search_body .search_result li{ border-bottom:1px antiquewhite solid; padding: 10px 15px; box-sizing:border-box; display: flex;}
     .search_body .search_result .img{ width: 60px; float:left; }
     .search_body .search_result .img img{ width: 100%; }
     .search_body .search_result .info{ float:left; margin-left: 15px; flex:1;}

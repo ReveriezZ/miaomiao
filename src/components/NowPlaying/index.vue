@@ -1,37 +1,103 @@
 <template>
-    <div class="movie_body">
-        <ul>
-            <li v-for="item in movieList" :key="item.id">
-                <div class="pic_show"><img :src="item.img|setWH('128.180')"></div>
-                <div class="info_list">
-                    <h2>{{item.nm}} <img v-if="item.version" src="@/assets/imax.png"></h2>
-                    <p>观众评<span class="grade">{{item.sc}}</span></p>
-                    <p>主演：{{item.star}}</p>
-                    <p>{{item.showInfo}}</p>
-                </div>
-                <div class="btn_mall">
-                    购票
-                </div>
-            </li>
-        </ul>
+    <div class="movie_body" ref="movie_body">
+        <Loading v-if="isLoading"/>
+        <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
+            <ul>
+                <li class="pullDown">{{pullDownMsg}}</li>
+                <li v-for="item in movieList" :key="item.id">
+                    <div class="pic_show" @tap="handleToDetail"><meta name="referrer" content="never"><img :src="item.images.small"></div>
+                    <div class="info_list">
+                        <h2>{{item.title}} <img v-if="item.has_video" src="@/assets/imax.png"></h2>
+                        <p>观众评 <span class="grade">{{item.rating.average}}分</span></p>
+                        <p>主演：<span v-for="cast in item.casts" :key="cast.id">{{cast.name}} </span></p>
+                        <p>{{item.collect_count}}人看过</p>
+                    </div>
+                    <div class="btn_mall">
+                        购票
+                    </div>
+                </li>
+            </ul>
+        </Scroller>
     </div>
 </template>
 
 <script>
+
+    //import Bscroll from 'better-scroll';
+
     export default {
         name:'NowPlaying',
         data(){
             return{
-                movieList:[]
+                movieList:[],
+                pullDownMsg:'',
+                isLoading:true,
+                prevCity:''
             }
         },
-        mounted(){
-            this.axios.get('/api/movieOnInfoList?cityId=10').then((res)=>{
-                var msg = res.data.msg;
-                if(msg === 'ok'){
-                    this.movieList = res.data.data.movieList;
-                }
+        activated(){
+            var cityNm = this.$store.state.city.nm;
+            if(this.prevCity === cityNm){
+                return
+            }
+            this.isLoading = true;
+            console.log(123);
+            this.axios.get('/doubanapi/in_theaters?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+cityNm).then((res)=>{
+                this.movieList = res.data.subjects;
+                this.isLoading = false;
+                this.prevCity = cityNm;
+                // this.$nextTick(()=>{
+                //     var scroll = new Bscroll(this.$refs.movie_body,{
+                //         tap:true,//允许tap触发
+                //         probeType:1,
+                //     });//保证数据更新完毕页面渲染完毕再触发
+                //     scroll.on('scroll',(pos)=>{
+                //         // console.log('scroll');
+                //         if(pos.y>30){
+                //             this.pullDownMsg = '正在更新中';
+                //         }
+                //
+                //     });
+                //     scroll.on('touchEnd',(pos)=>{
+                //         // console.log('touchend')
+                //         if(pos.y>30){
+                //             this.axios.get('/doubanapi/in_theaters?apikey=0b2bdeda43b5688921839c8ecb20399b').then((res)=>{
+                //                 this.pullDownMsg='更新成功';
+                //                 setTimeout(()=>{
+                //                     this.movieList = res.data.subjects;
+                //                     this.pullDownMsg=''
+                //                 },1000);
+                //             });
+                //         }
+                //     })
+                // });
+
+
             });
+        },
+        methods:{
+            handleToDetail(){
+
+            },
+            handleToScroll(pos){
+                if(pos.y>30){
+                    this.pullDownMsg = '正在更新中';
+                    //this.isLoading = true;
+                }
+            },
+            handleToTouchEnd(pos){
+                if(pos.y>30){
+                    this.axios.get('/doubanapi/in_theaters?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+this.prevCity).then((res)=>{
+                        this.pullDownMsg='更新成功';
+                        this.isLoading = true;
+                        setTimeout(()=>{
+                            this.isLoading = false;
+                            this.movieList = res.data.subjects;
+                            this.pullDownMsg=''
+                        },2000);
+                    });
+                }
+            }
         }
     }
 </script>
@@ -49,4 +115,5 @@
     .movie_body .info_list img{ width:50px; position: absolute; right:10px; top: 5px;}
     .movie_body .btn_mall , .movie_body .btn_pre{ width:47px; height:27px; line-height: 28px; text-align: center; background-color: #f03d37; color: #fff; border-radius: 4px; font-size: 12px; cursor: pointer;}
     .movie_body .btn_pre{ background-color: #3c9fe6;}
+    .movie_body .pullDown{margin:0;padding:0;border:none;text-align: center;}
 </style>
