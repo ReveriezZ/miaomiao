@@ -5,9 +5,9 @@
             <ul>
                 <li class="pullDown">{{pullDownMsg}}</li>
                 <li v-for="item in comingList" :key="item.id">
-                    <div class="pic_show"><img :src="item.images.small"></div>
+                    <div class="pic_show" @tap="handleToDetail(item.id)"><img :src="item.images.small"></div>
                     <div class="info_list">
-                        <h2>{{item.title}}</h2>
+                        <h2 @tap="handleToDetail(item.id)">{{item.title}}</h2>
                         <p><span class="person">类型：<span v-for="(genre, index) in item.genres" :key="index">{{genre}} </span></span></p>
                         <p>主演：<span v-for="cast in item.casts" :key="cast.id">{{cast.name}} </span></p>
                         <p v-if="item.mainland_pubdate">{{item.mainland_pubdate}}上映</p>
@@ -71,8 +71,8 @@
             })
         },
         methods:{
-            handleToDetail(){
-
+            handleToDetail(movieId){
+                this.$router.push('/movie/detail2/'+movieId);
             },
             handleToScroll(pos){
                 if(pos.y>30){

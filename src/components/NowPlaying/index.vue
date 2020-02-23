@@ -5,9 +5,9 @@
             <ul>
                 <li class="pullDown">{{pullDownMsg}}</li>
                 <li v-for="item in movieList" :key="item.id">
-                    <div class="pic_show" @tap="handleToDetail"><meta name="referrer" content="never"><img :src="item.images.small"></div>
+                    <div class="pic_show" @tap="handleToDetail(item.id)"><meta name="referrer" content="never"><img :src="item.images.small"></div>
                     <div class="info_list">
-                        <h2>{{item.title}} <img v-if="item.has_video" src="@/assets/imax.png"></h2>
+                        <h2 @tap="handleToDetail(item.id)">{{item.title}} <img v-if="item.has_video" src="@/assets/imax.png"></h2>
                         <p>观众评 <span class="grade">{{item.rating.average}}分</span></p>
                         <p>主演：<span v-for="cast in item.casts" :key="cast.id">{{cast.name}} </span></p>
                         <p>{{item.collect_count}}人看过</p>
@@ -41,7 +41,6 @@
                 return
             }
             this.isLoading = true;
-            console.log(123);
             this.axios.get('/doubanapi/in_theaters?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+cityNm).then((res)=>{
                 this.movieList = res.data.subjects;
                 this.isLoading = false;
@@ -76,8 +75,8 @@
             });
         },
         methods:{
-            handleToDetail(){
-
+            handleToDetail(movieId){
+                this.$router.push('/movie/detail1/'+movieId);
             },
             handleToScroll(pos){
                 if(pos.y>30){
