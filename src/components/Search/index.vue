@@ -35,7 +35,7 @@
 
         watch:{
             message(newVal){
-                this.axios.get('/searchapi&key=V+DGrYduTNn+jJmM+oM7Qm/DMwTgsJeZ/px07w&q='+newVal).then((res)=>{
+                this.axios.get('/searchapi/data/?id=62&key=V+DGrYduTNn+jJmM+oM7Qm/DMwTgsJeZ/px07w&q='+newVal).then((res)=>{
                     var msg = res.data.reason;
                     if(msg === '查询成功'){
                         this.movie = res.data.result;

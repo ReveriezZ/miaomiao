@@ -39,7 +39,7 @@
                 return
             }
             this.isLoading = true;
-            this.axios.get('/doubanapi/coming_soon?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+cityNm).then((res)=>{
+            this.axios.get('/doubanapi/v2/movie/coming_soon?city='+cityNm).then((res)=>{
                 this.comingList = res.data.subjects;
                 this.isLoading = false;
                 this.prevCity = cityNm;
@@ -81,7 +81,7 @@
             },
             handleToTouchEnd(pos){
                 if(pos.y>30){
-                    this.axios.get('/doubanapi/coming_soon?apikey=0b2bdeda43b5688921839c8ecb20399b&city='+this.prevCity).then((res)=>{
+                    this.axios.get('/doubanapi/v2/movie/coming_soon?city='+this.prevCity).then((res)=>{
                         this.pullDownMsg='更新成功';
                         this.isLoading=true;
                         setTimeout(()=>{

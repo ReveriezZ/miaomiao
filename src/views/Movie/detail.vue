@@ -6,7 +6,7 @@
         <Loading v-if="isLoading"></Loading>
         <div v-else id="content" class="contentDetail">
             <div class="detail_list">
-                <div class="detail_list_bg"></div>
+                <div class="detail_list_bg" :style="{'background-image':'url('+ image +')'}"></div>
                 <div class="detail_list_filter"></div>
                 <div class="detail_list_content">
                     <div v-if="image!=''" class="detail_list_img">
@@ -24,9 +24,11 @@
                 </div>
             </div>
             <div class="detail_intro">
+                <h3 style="margin-bottom: 10px">剧情简介</h3>
                 <p>{{detailMovie.summary}}</p>
             </div>
             <div class="detail_player swiper-container" ref="detail_player">
+                <h3 style="margin-bottom: 10px">剧照</h3>
                 <ul class="swiper-wrapper">
                     <li v-for="item in detailMovie.photos" :key="item.id" class="swiper-slide">
                         <div>
@@ -61,7 +63,7 @@
             }
         },
         mounted() {
-            this.axios.get('/doubanapi/subject/' + this.movieId + '?apikey=0b2bdeda43b5688921839c8ecb20399b').then((res) => {
+            this.axios.get('/doubanapi/v2/movie/subject/' + this.movieId).then((res) => {
                 if(res.data){
                     this.detailMovie = res.data;
                     this.image = res.data.images.small;
@@ -71,7 +73,6 @@
                             slidesPerView : 'auto',
                             freeMode : true,
                             freeModeSticky: true,
-                            autoHeight:true
                         });
                     });
 
@@ -98,10 +99,10 @@
 .detail_list .detail_list_info{ margin-top: 20px;}
 .detail_list .detail_list_info h2{ font-size: 20px; color:white; font-weight: normal; line-height: 40px;}
 .detail_list .detail_list_info p{ color:white; line-height: 20px; font-size: 14px; color:#ccc;}
-#content .detail_intro{ padding: 10px;}
-#content .detail_player{ margin:20px;}
-.detail_player .swiper-slide{ width:100px; margin-right: 20px; text-align: center; font-size: 14px;height: 80px}
-.detail_player .swiper-slide img{ width:100%; margin-bottom: 5px;min-height:80px;max-height:80px}
+#content .detail_intro{ margin:10px;border: #c6cbd1 solid;padding:3px;border-radius: 5px}
+#content .detail_player{ margin:10px;border: #c6cbd1 solid;padding:3px;border-radius: 5px}
+.detail_player .swiper-slide{ width:70px; margin-right: 20px; text-align: center; font-size: 14px;}
+.detail_player .swiper-slide img{ width:100%; margin-bottom: 5px;}
 .detail_player .swiper-slide p:nth-of-type(2){ color:#999;}
 
 
